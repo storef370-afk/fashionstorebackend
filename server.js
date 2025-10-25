@@ -4,15 +4,18 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 dotenv.config();
-const app = express();
 
+const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect(process.env.MONGO_URI)
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.log("❌ MongoDB connection error:", err));
+  .catch((err) => console.log("❌ MongoDB connection error:", err));
 
+// Routes
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
