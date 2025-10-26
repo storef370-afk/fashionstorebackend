@@ -24,7 +24,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST add new product (basic, unprotected)
+// ✅ POST add new product (unprotected, optional for admin)
 router.post("/", async (req, res) => {
   try {
     const { name, price, image, category, description } = req.body;
