@@ -11,7 +11,6 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -22,7 +21,6 @@ const storage = new CloudinaryStorage({
 
 const parser = multer({ storage });
 
-// Upload endpoint
 router.post("/", parser.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
   res.json({ url: req.file.path });
