@@ -7,32 +7,28 @@ const router = express.Router();
 
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
+  cloud_name: process.env.CLOUD_NAME,       // from .env
+  api_key: process.env.CLOUD_API_KEY,       // from .env
+  api_secret: process.env.CLOUD_API_SECRET, // from .env
 });
 
-// Storage for multer
+// Cloudinary storage setup for multer
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    folder: "fashion_store",
-    resource_type: file.mimetype.startsWith("video") ? "video" : "image",
-    public_id: file.originalname,
-  }),
+  params: {
+    folder: "fashion_store", // all uploads go to this folder
+    resource_type: "auto",   // allows images & videos
+  },
 });
 
+// Multer parser using Cloudinary storage
 const parser = multer({ storage });
 
-// Single file upload route
-router.post("/", parser.fields([{ name: "image" }, { name: "video" }]), (req, res) => {
-  try {
-    const imageUrl = req.files.image ? req.files.image[0].path : null;
-    const videoUrl = req.files.video ? req.files.video[0].path : null;
-    res.json({ image: imageUrl, video: videoUrl });
-  } catch (err) {
-    res.status(500).json({ message: "Upload failed", error: err.message });
-  }
+// Upload endpoint
+// POST /api/upload
+router.post("/", parser.single("file"), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  res.json({ url: req.file.path }); // returns Cloudinary URL
 });
 
 export default router;
