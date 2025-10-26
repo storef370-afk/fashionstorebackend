@@ -26,4 +26,6 @@ router.post("/", parser.single("file"), (req, res) => {
   res.json({ url: req.file.path });
 });
 
+
 export default router;
+
