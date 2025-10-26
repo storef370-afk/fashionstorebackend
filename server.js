@@ -13,16 +13,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Connection
+// ✅ Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.log("❌ MongoDB connection error:", err));
 
-// Routes
-app.use("/api/upload", uploadRoutes);      // Handles Cloudinary uploads
-app.use("/api/admin", adminRoutes);        // Admin login & protected routes
-app.use("/api/products", productRoutes);   // Product APIs
+// ✅ Routes
+app.use("/api/upload", uploadRoutes); // for Cloudinary uploads
+app.use("/api/admin", adminRoutes);   // Admin dashboard routes
+app.use("/api/products", productRoutes); // Products routes
 
 // Root route
 app.get("/", (req, res) => {
