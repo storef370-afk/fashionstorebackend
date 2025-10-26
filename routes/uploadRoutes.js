@@ -1,49 +1,37 @@
 import express from "express";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const router = express.Router();
 
-// Cloudinary config
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUD_API_KEY,
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// Multer setup (store files temporarily before upload)
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+// Storage for multer
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => ({
+    folder: "fashion_store",
+    resource_type: file.mimetype.startsWith("video") ? "video" : "image",
+    public_id: file.originalname,
+  }),
+});
 
-// Upload route for image/video
-router.post("/", upload.single("file"), async (req, res) => {
+const parser = multer({ storage });
+
+// Single file upload route
+router.post("/", parser.fields([{ name: "image" }, { name: "video" }]), (req, res) => {
   try {
-    const file = req.file;
-
-    if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    // Upload file to Cloudinary
-    const result = await cloudinary.uploader.upload_stream(
-      { resource_type: "auto" },
-      (error, result) => {
-        if (error) {
-          console.error("Cloudinary Upload Error:", error);
-          return res.status(500).json({ message: "Upload failed", error });
-        }
-        res.json({ url: result.secure_url });
-      }
-    );
-
-    // Write file buffer to Cloudinary stream
-    result.end(file.buffer);
-  } catch (error) {
-    console.error("Upload Route Error:", error);
-    res.status(500).json({ message: "Server error", error });
+    const imageUrl = req.files.image ? req.files.image[0].path : null;
+    const videoUrl = req.files.video ? req.files.video[0].path : null;
+    res.json({ image: imageUrl, video: videoUrl });
+  } catch (err) {
+    res.status(500).json({ message: "Upload failed", error: err.message });
   }
 });
 
