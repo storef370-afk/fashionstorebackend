@@ -2,8 +2,6 @@ import express from "express";
 import Product from "../models/Product.js";
 
 const router = express.Router();
-
-// Admin password from .env
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Pedahelmylove247";
 
 // Admin login
@@ -16,16 +14,16 @@ router.post("/login", (req, res) => {
   }
 });
 
-// Admin add product (protected)
+// Admin add product
 router.post("/products", async (req, res) => {
-  const { password, name, price, category, description, image, video } = req.body;
+  const { password, name, price, category, description, image } = req.body;
 
   if (password !== ADMIN_PASSWORD) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
-    const product = new Product({ name, price, category, description, image, video });
+    const product = new Product({ name, price, category, description, image });
     await product.save();
     res.status(201).json({ message: "✅ Product added successfully", product });
   } catch (err) {
