@@ -3,7 +3,7 @@ import Product from "../models/Product.js";
 
 const router = express.Router();
 
-// ✅ GET all products
+// GET all products
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET single product by ID
+// GET single product by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -24,7 +24,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST add new product (unprotected, optional for admin)
+// POST add new product (basic)
 router.post("/", async (req, res) => {
   try {
     const { name, price, image, category, description } = req.body;
