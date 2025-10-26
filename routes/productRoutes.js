@@ -2,6 +2,7 @@ import express from "express";
 import Product from "../models/Product.js";
 
 const router = express.Router();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Pedahelmylove247";
 
 // GET all products
 router.get("/", async (req, res) => {
@@ -9,7 +10,8 @@ router.get("/", async (req, res) => {
     const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching products", error: err });
+    console.error(err);
+    res.status(500).json({ message: "Error fetching products", error: err.message });
   }
 });
 
@@ -20,19 +22,32 @@ router.get("/:id", async (req, res) => {
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching product", error: err });
+    console.error(err);
+    res.status(500).json({ message: "Error fetching product", error: err.message });
   }
 });
 
-// POST add new product (basic)
+// POST add new product (admin only)
 router.post("/", async (req, res) => {
+  const { password, name, price, image, category, description } = req.body;
+
+  // Admin authentication
+  if (password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  // Validate required fields
+  if (!name || !price || !image || !category || !description) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
   try {
-    const { name, price, image, category, description } = req.body;
     const product = new Product({ name, price, image, category, description });
-    await product.save();
-    res.status(201).json(product);
+    const savedProduct = await product.save();
+    res.status(201).json({ message: "✅ Product added successfully", product: savedProduct });
   } catch (err) {
-    res.status(500).json({ message: "Error adding product", error: err });
+    console.error("Error saving product:", err.message);
+    res.status(500).json({ message: "❌ Error saving product", error: err.message });
   }
 });
 
