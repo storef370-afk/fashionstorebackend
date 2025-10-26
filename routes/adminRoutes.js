@@ -1,33 +1,31 @@
 import express from "express";
-import Product from "../models/Product.js";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const router = express.Router();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Pedahelmylove247";
 
-// Admin login
-router.post("/login", (req, res) => {
-  const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
-    res.json({ success: true, message: "Login successful" });
-  } else {
-    res.status(401).json({ success: false, message: "Unauthorized" });
-  }
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// Admin add product
-router.post("/products", async (req, res) => {
-  const { password, name, price, image, video, category, description } = req.body;
+// Storage setup
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "fashion_store",
+    resource_type: "auto", // handles both images & videos
+  },
+});
 
-  if (password !== ADMIN_PASSWORD)
-    return res.status(401).json({ message: "Unauthorized" });
+const parser = multer({ storage });
 
-  try {
-    const product = new Product({ name, price, image, video, category, description });
-    await product.save();
-    res.status(201).json({ message: "Product added successfully", product });
-  } catch (err) {
-    res.status(500).json({ message: "Error saving product", error: err });
-  }
+// Upload endpoint
+router.post("/", parser.single("file"), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  res.json({ url: req.file.path });
 });
 
 export default router;
