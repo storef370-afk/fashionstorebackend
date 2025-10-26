@@ -47,5 +47,40 @@ app.post("/api/products", async (req, res) => {
   res.status(201).json(product);
 });
 
+
+
+// 🔐 Admin authentication (simple password check)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+
+// Admin login route
+app.post("/api/admin/login", (req, res) => {
+  const { password } = req.body;
+  if (password === ADMIN_PASSWORD) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+});
+
+// Admin add product route (protected)
+app.post("/api/admin/products", async (req, res) => {
+  const { password, name, price, image, category, description } = req.body;
+
+  if (password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const product = new Product({ name, price, image, category, description });
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(500).json({ message: "Error saving product", error });
+  }
+});
+
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
