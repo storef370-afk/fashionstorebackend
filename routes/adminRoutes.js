@@ -18,16 +18,23 @@ router.post("/login", (req, res) => {
 router.post("/products", async (req, res) => {
   const { password, name, price, category, description, image } = req.body;
 
+  // Check admin password
   if (password !== ADMIN_PASSWORD) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  // Validate required fields
+  if (!name || !price || !category || !description || !image) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
   try {
     const product = new Product({ name, price, category, description, image });
-    await product.save();
-    res.status(201).json({ message: "✅ Product added successfully", product });
+    const savedProduct = await product.save();
+    res.status(201).json({ message: "✅ Product added successfully", product: savedProduct });
   } catch (err) {
-    res.status(500).json({ message: "❌ Error saving product", error: err });
+    console.error("Error saving product:", err.message); // <-- log the error
+    res.status(500).json({ message: "❌ Error saving product", error: err.message });
   }
 });
 
