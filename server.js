@@ -30,7 +30,7 @@ const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "client/build")));
 
 // Catch-all route to serve React frontend
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
 });
 
@@ -42,3 +42,4 @@ app.get("/", (req, res) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
