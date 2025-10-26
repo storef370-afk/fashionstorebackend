@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
+import uploadRoutes from "./routes/uploadRoutes.js";
+
+
+
 dotenv.config();
 
 const app = express();
@@ -27,6 +31,8 @@ const productSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model("Product", productSchema);
+
+app.use("/api/upload", uploadRoutes);
 
 // ✅ Default route
 app.get("/", (req, res) => {
@@ -83,4 +89,5 @@ app.post("/api/admin/products", async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
