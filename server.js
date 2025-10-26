@@ -20,23 +20,23 @@ mongoose
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.log("❌ MongoDB connection error:", err));
 
-// ✅ Root API route (optional)
+// ✅ Root API route
 app.get("/", (req, res) => {
   res.send("🛍️ Fashion Store API is running...");
 });
 
-// ✅ API Routes
-app.use("/api/upload", uploadRoutes);      // Cloudinary uploads
-app.use("/api/admin", adminRoutes);        // Admin routes
-app.use("/api/products", productRoutes);   // Product routes
+// ✅ API routes
+app.use("/api/upload", uploadRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/products", productRoutes);
 
-// ✅ Serve frontend build (for production)
+// ✅ Serve React build
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "client/build")));
 
-// ✅ Catch-all route for React Router (Express 5 compatible)
-app.get("/:path(*)", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+// ✅ Catch-all for React Router (Express 5 compatible)
+app.all("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/build", "index.html"));
 });
 
 // Start server
